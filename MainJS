@@ -1,0 +1,142 @@
+<html>
+<head>
+
+</head>
+<body>
+ <canvas id="canvas"></canvas>
+<script>
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+
+
+      canvas.width = 800;
+      canvas.height = 600;
+
+      //Creating the main functions for it to work
+      function update(mod)
+      {
+   if (37 in keysDown) {
+        player.currentState = 'All';
+        player.x -= player.speed * mod;
+        updateAnimation(player.stateAnimations[player.currentState]);
+        if(player.x < 0)
+          player.x = 0;
+    }
+    else if (39 in keysDown) {
+        player.currentState = 'All';
+        player.x += player.speed * mod;
+        updateAnimation(player.stateAnimations[player.currentState]);
+        if(player.x > 735)
+          player.x = 735;
+    }
+      }
+
+      function render()
+      {
+ context.fillStyle = game.backgroundColor;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    drawSprite(player);
+    context.fillStyle = '#000';
+      }
+
+      function main()
+      {
+        update((Date.now() - then)/1000);
+        if (game.images == game.imagesLoaded) {
+        render();
+    }
+        then = Date.now();
+      }
+       var then = Date.now();
+      setInterval(main, 10);
+     
+      //Creating instances for the resources and variables
+      var keysDown = {};
+window.addEventListener('keydown', function(e) {
+    keysDown[e.keyCode] = true;
+});
+window.addEventListener('keyup', function(e) {
+    delete keysDown[e.keyCode];
+});
+
+      var game = {
+        images: 0,
+        imagesLoaded: 0,
+        score: 0,
+        other: 0
+      }
+
+      function imageLoad(){
+        game.imagesLoaded++;
+      }
+
+      function Tiles(image,tileWidth,tileHeight){
+        this.image = new Image();
+        game.images++;
+        this.image.onload = imageLoad;
+        this.image.src = image;
+        this.tileWidth = tileWidth;
+        this.tileHeight = tileHeight;
+      }
+
+      var spriteTiles1 = new Tiles('roborobo.jpg',64,64);
+
+
+      //Define animations
+
+      function animation(tileset,frames,frameDuration)
+      {
+        this.tileset = tileset;
+        this.frames = frames;
+        this.currentFrame = 0;
+        this.frameTimer = Date.now();
+        this.frameDuration = frameDuration;
+      }
+
+      //Example
+      //var spriteAllanim = new animation(spriteTiles1,['0,0','1,0','2,0','3,0'],200);
+      var spriteAllanim = new animation(spriteTiles1,['0,0','0,0','0,0','0,0'],200);
+
+      // Animation update
+      function updateAnimation(anim) {
+    if (Date.now() - anim.frameTimer > anim.frameDuration) {
+        if (anim.currentFrame < anim.frames.length - 1) anim.currentFrame ++;
+        else anim.currentFrame = 0;
+        anim.frameTimer = Date.now();
+        }
+    }
+
+
+    //Sprite class
+
+    function Sprite(stateAnimations, startingState, x, y, width, height, speed){
+      this.stateAnimations = stateAnimations;
+      this.currentState = startingState;
+      this.x = x;
+      this.y = y;
+      this.width = width;
+      this.height = height;
+      this.speed = speed;
+    }
+     
+    //declaring
+    var player = new Sprite({'All': spriteAllanim}, 'All', 400,535, 64, 64, 300);
+
+    //Sprite drawing 
+    function drawSprite(sprite) {
+    context.drawImage(
+        sprite.stateAnimations[sprite.currentState].tileset.image, 
+        sprite.stateAnimations[sprite.currentState].frames[sprite.stateAnimations[sprite.currentState].currentFrame].split(',')[0] * sprite.stateAnimations[sprite.currentState].tileset.tileWidth,
+        0,
+        sprite.stateAnimations[sprite.currentState].tileset.tileWidth,
+        sprite.stateAnimations[sprite.currentState].tileset.tileHeight,
+        Math.round(sprite.x),
+        Math.round(sprite.y),
+        sprite.width,
+        sprite.height
+    );
+}
+    </script>
+</canvas>
+</body>
+</html>
